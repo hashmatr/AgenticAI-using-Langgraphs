@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-
+import uuid
 import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage
 
@@ -20,6 +20,14 @@ def get_text_content(content):
         )
     return str(content) if content else ""
 
+def generate_thread_id():
+    return str(uuid.uuid4())   
+
+def reset_chat():
+    thread_id = generate_thread_id()
+    st.session_state["thread_id"] = str(thread_id)
+    st.session_state["messages"] = []
+    st.rerun()
 
 @st.cache_resource
 def create_chatbot():
@@ -65,16 +73,21 @@ if workflow is None:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "thread_id" not in st.session_state:
-    st.session_state.thread_id = "streamlit-chat"
+    st.session_state.thread_id = generate_thread_id()
 
 with st.sidebar:
-    st.header("Chat")
-    st.caption("Conversation memory is maintained for this browser session.")
-    if st.button("Clear conversation", use_container_width=True):
-        st.session_state.messages = []
-        st.session_state.thread_id = f"streamlit-chat-{os.urandom(4).hex()}"
-        st.rerun()
+    st.title("LangGraph Chatbot")
 
+    if st.button("New Chat", use_container_width=True):
+        reset_chat()
+
+    st.header("My Conversation")
+    st.text(st.session_state["thread_id"])
+
+    st.caption("Conversation memory is maintained for this browser session.")
+
+    if st.button("Clear conversation", use_container_width=True):
+        reset_chat()
 for message in st.session_state.messages:
     role = "assistant" if isinstance(message, AIMessage) else "user"
     with st.chat_message(role):
