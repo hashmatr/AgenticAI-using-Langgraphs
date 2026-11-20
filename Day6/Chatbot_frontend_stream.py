@@ -23,6 +23,11 @@ def get_text_content(content):
 def generate_thread_id():
     return str(uuid.uuid4())   
 
+def load_conversation(thread_id):
+    return chatbot.get_state(config = {
+                "configurable": {"thread_id": thread_id}
+            }).values['messages']
+
 def reset_chat():
     thread_id = generate_thread_id()
     st.session_state["thread_id"] = str(thread_id)
@@ -93,7 +98,8 @@ with st.sidebar:
 
     st.header("My Conversation")
     for thread_id in st.session_state['chat_threads']:
-        st.button(str(thread_id))
+        if st.button(str(thread_id)):
+           message = load_conversation(thread_id)
 
     st.caption("Conversation memory is maintained for this browser session.")
 
