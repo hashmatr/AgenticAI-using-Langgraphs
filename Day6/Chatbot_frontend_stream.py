@@ -26,8 +26,13 @@ def generate_thread_id():
 def reset_chat():
     thread_id = generate_thread_id()
     st.session_state["thread_id"] = str(thread_id)
+    add_threads(st.session_state['thread_id'])
     st.session_state["messages"] = []
     st.rerun()
+
+def add_threads(thread_id):
+    if thread_id not in st.session_state['chat_threads']:
+        st.session_state['chat_threads'].append(thread_id)
 
 @st.cache_resource
 def create_chatbot():
@@ -75,6 +80,11 @@ if "messages" not in st.session_state:
 if "thread_id" not in st.session_state:
     st.session_state.thread_id = generate_thread_id()
 
+if 'chat_threads' not in st.session_state:
+    st.session_state["chat_threads"] = []
+
+add_threads(st.session_state['thread_id'])
+
 with st.sidebar:
     st.title("LangGraph Chatbot")
 
@@ -82,7 +92,8 @@ with st.sidebar:
         reset_chat()
 
     st.header("My Conversation")
-    st.text(st.session_state["thread_id"])
+    for thread_id in st.session_state['chat_threads']:
+        st.button(str(thread_id))
 
     st.caption("Conversation memory is maintained for this browser session.")
 
