@@ -266,10 +266,13 @@ if prompt:
         try:
 
             config = {
-                "configurable": {
+                "configurable":{"thread_id": st.session_state.thread_id},
+                    "metadata":{
+    
                     "thread_id": st.session_state.thread_id
+                },
+                "run_name": "GPT_Turn" 
                 }
-            }
 
             response_placeholder = st.empty()
             streamed_response = ""
